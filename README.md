@@ -1,4 +1,4 @@
-# Py-FileMerge
+# Py-DirMerge
 Cross-platform command line tool for copying between, merging, and/or maintaining files across multiple directories.
 
 Originally created to propagate file additions/deletions through multiple copies of a music library, because it was faster to code this than wait for WinMerge to do the same task.
