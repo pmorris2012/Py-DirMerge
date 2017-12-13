@@ -41,7 +41,7 @@ def op_copy(files, from_dir, to_dir):
         os.makedirs(os.path.dirname(f_path), exist_ok=True)
         shutil.copyfile(f, f_path)
 
-parser = argparse.ArgumentParser(description='Fmerge v0.1: Cmd-line cross platform alternative to slow ass WinMerge - Warning: goes by file names only')
+parser = argparse.ArgumentParser(description='Py-DirMerge v0.1: Cmd-line cross platform alternative to slow ass WinMerge - Warning: goes by file names only')
 parser.add_argument('dir1', help='absolute path of the first directory to compare')
 parser.add_argument('dir2', help='absolute path of the second directory to compare')
 parser.add_argument('ops', type=str, choices=ops, nargs='+', help='Specify any number of operations to perform from the list:\n del-1-2: delete all files in 2 which are not in 1\n del-2-1: delete all files in 1 which are not in 2\n merge-1-2: move files in 1 to 2, without replacement\n merge-2-1: move files in 2 to 1, without replacement\n copy-1-2: move files in 1 to 2, with replacement\n copy-2-1: move files in 2 to 1, with replacement')
