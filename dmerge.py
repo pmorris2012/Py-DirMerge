@@ -14,6 +14,7 @@ def get_unique(dir1, dir2, dir1_files, dir2_files):
     dir2_set = set([x.replace(dir2, '') for x in dir2_files])
     return [dir1 + x for x in (dir1_set - dir2_set)], [dir2 + x for x in (dir2_set - dir1_set)]
 
+#logic from https://gist.github.com/jacobtomlinson/9031697
 def op_del_empty_dirs(path):
     files = os.listdir(path)
     if len(files):
