@@ -1,8 +1,18 @@
 import os
 import argparse
 import shutil
+import sys
 
-ops = ['del-1-2','del-2-1','merge-1-2','merge-2-1','copy-1-2','copy-2-1']
+ops = ['del-1-2','del-2-1','merge-1-2','merge-2-1','copy-1-2','copy-2-1', 'compare']
+
+#https://stackoverflow.com/a/29988426
+def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
+    enc = file.encoding
+    if enc == 'UTF-8':
+        print(*objects, sep=sep, end=end, file=file)
+    else:
+        f = lambda obj: str(obj).encode(enc, errors='backslashreplace').decode(enc)
+        print(*map(f, objects), sep=sep, end=end, file=file)
 
 def get_flist(path):
     for root, dirs, files in os.walk(path):
@@ -25,12 +35,12 @@ def op_del_empty_dirs(path):
     
     files = os.listdir(path)
     if len(files) == 0:
-        print("Removing empty folder:", path)
+        uprint("Removing empty folder:", path)
         os.rmdir(path)
 
 def op_del(files):
     for f in files:
-        print("Deleting", f)
+        uprint("Deleting", f)
         os.remove(f)
 
 def op_copy(files, from_dir, to_dir):
@@ -38,14 +48,14 @@ def op_copy(files, from_dir, to_dir):
         f_path = f.replace(from_dir, to_dir)
         if os.path.exists(f_path):
             continue
-        print("copying", f_path.replace(to_dir, ''), "from", from_dir, "to", to_dir)
+        uprint("copying", f_path.replace(to_dir, ''), "from", from_dir, "to", to_dir)
         os.makedirs(os.path.dirname(f_path), exist_ok=True)
         shutil.copyfile(f, f_path)
 
 parser = argparse.ArgumentParser(description='Py-DirMerge v0.1: Cmd-line cross platform alternative to slow ass WinMerge - Warning: goes by file names only')
 parser.add_argument('dir1', help='absolute path of the first directory to compare')
 parser.add_argument('dir2', help='absolute path of the second directory to compare')
-parser.add_argument('ops', type=str, choices=ops, nargs='+', help='Specify any number of operations to perform from the list:\n del-1-2: delete all files in 2 which are not in 1\n del-2-1: delete all files in 1 which are not in 2\n merge-1-2: move files in 1 to 2, without replacement\n merge-2-1: move files in 2 to 1, without replacement\n copy-1-2: move files in 1 to 2, with replacement\n copy-2-1: move files in 2 to 1, with replacement')
+parser.add_argument('ops', type=str, choices=ops, nargs='+', help='Specify any number of operations to perform from the list:\n del-1-2: delete all files in 2 which are not in 1\n del-2-1: delete all files in 1 which are not in 2\n merge-1-2: move files in 1 to 2, without replacement\n merge-2-1: move files in 2 to 1, without replacement\n copy-1-2: move files in 1 to 2, with replacement\n copy-2-1: move files in 2 to 1, with replacement\n compare: display dir info')
 
 args = parser.parse_args()
 
@@ -54,27 +64,30 @@ for op in args.ops:
     dir2_files = list(get_flist(args.dir2))
     dir1_uniq, dir2_uniq = get_unique(args.dir1, args.dir2, dir1_files, dir2_files)
 
-    print("--------\n")
-    print("found", len(dir1_files), "files, with", len(dir1_uniq), "unique files, in dir1")
-    print("found", len(dir2_files), "files, with", len(dir2_uniq), "unique files, in dir2")
+    uprint("--------\n")
+    uprint("found", len(dir1_files), "files, with", len(dir1_uniq), "unique files, in dir1")
+    uprint("found", len(dir2_files), "files, with", len(dir2_uniq), "unique files, in dir2")
 
     if op == 'del-1-2':
-        print("deleting", len(dir2_uniq), "unique files from dir2.")
+        uprint("deleting", len(dir2_uniq), "unique files from dir2.")
         op_del(dir2_uniq)
         op_del_empty_dirs(args.dir2)
     elif op == 'del-2-1':
-        print("deleting", len(dir1_uniq), "unique files from dir1.")
+        uprint("deleting", len(dir1_uniq), "unique files from dir1.")
         op_del(dir1_uniq)
         op_del_empty_dirs(args.dir1)
     elif op == 'merge-1-2':
-        print("copying", len(dir1_uniq), "unique dir1 files to dir2.")
+        uprint("copying", len(dir1_uniq), "unique dir1 files to dir2.")
         op_copy(dir1_uniq, args.dir1, args.dir2)
     elif op == 'merge-2-1':
-        print("copying", len(dir2_uniq), "unique dir2 files to dir1.")
+        uprint("copying", len(dir2_uniq), "unique dir2 files to dir1.")
         op_copy(dir2_uniq, args.dir2, args.dir1)
     elif op == 'copy-1-2':
-        print("copying all", len(dir1_files), "dir1 files to dir2.")
+        uprint("copying all", len(dir1_files), "dir1 files to dir2.")
         op_copy(dir1_files, args.dir1, args.dir2)
     elif op == 'copy-2-1':
-        print("copying all", len(dir2_files), "dir2 files to dir1.")
+        uprint("copying all", len(dir2_files), "dir2 files to dir1.")
         op_copy(dir2_files, args.dir2, args.dir1)
+    elif op == 'compare':
+        pass
+        print(dir1_uniq[0], dir2_uniq[0])
